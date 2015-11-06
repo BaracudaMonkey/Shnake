@@ -1,0 +1,155 @@
+from cgitb import text
+from enum import Enum
+from random import randint
+from time import sleep
+import pygame
+import sys
+import os
+print("         WELCOME TO SNAKE!:)")
+print("by:Spencer Voorhees and Ammon Warnick")
+
+
+class Direction(Enum):
+    Left = 0
+    Right = 1
+    Up = 2
+    Down = 3
+
+
+class Snake:
+    size = 3
+    tail = [
+        (3, 5),
+    ]
+    direction = Direction.Right
+    dead = False
+    def die(self):
+        self.dead = True
+        self.direction = "None"
+    def clear(self):
+
+        print ("darn")
+        snake.position = (5, 5)
+snake = Snake()
+
+
+class Food:
+    position = (0, 0)
+    type = "apple"
+
+    def __init__(self):
+        self.randomize()
+
+    def randomize(self):
+        self.position = randint(1, 149), randint(1, 69)
+
+food = [Food() for _ in range(130)]
+food1 = [Food() for _ in range (20)]
+food2 = [Food() for _ in range(400)]
+
+class World:
+    tiles = [[0 for _ in range(150)] for _2 in range(70)]
+    snake = Snake()
+
+    def input(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_a:
+                    self.snake.direction = Direction.Left
+                if event.key == pygame.K_d:
+                    self.snake.direction = Direction.Right
+                if event.key == pygame.K_w:
+                    self.snake.direction = Direction.Up
+                if event.key == pygame.K_s:
+                    self.snake.direction = Direction.Down
+
+
+
+
+    def update(self):
+            if snake.dead:
+                return
+
+
+
+            head = list(self.snake.tail[0])
+            if self.snake.direction == Direction.Left:
+                head[0] -= 1
+            elif self.snake.direction == Direction.Right:
+                head[0] += 1
+            elif self.snake.direction == Direction.Up:
+                head[1] -= 1
+            elif self.snake.direction == Direction.Down:
+                head[1] += 1
+            else:
+                print("Uh oh")
+            head = head[0] % len(self.tiles[0]), head[1] % len(self.tiles)
+
+            self.snake.tail = [head] + self.snake.tail
+
+            # if the head is on an apple, eat it
+            for apple in food:
+                if apple.position == head:
+                    apple.randomize()
+                    self.snake.size += 1
+            for apple in food1:
+                if apple.position == head:
+                    apple.randomize()
+                    self.snake.size += 2
+            for apple in food2:
+                if apple.position == head:
+                    apple.randomize()
+                    self.snake.size -= 10
+
+            # cut the tail to the right length
+            self.snake.tail = self.snake.tail[:self.snake.size]
+
+            # if the head is on the tail, we die:
+            for body in self.snake.tail[1:]:
+                if body == head:
+                    snake.die()
+                    sys.exit()
+
+
+
+    def render(self):
+        screen.fill((0, 0, 0))
+        for y, row in enumerate(self.tiles):
+            for x, column in enumerate(row):
+                #pygame.draw.rect(screen, (32, 32, 32, 255), (x * w, y * h, w, h), 1)
+                if (x, y) in self.snake.tail:
+                    pygame.draw.rect(screen, (71, 71, 255, 255), (x * w, y * h, w, h))
+
+        for f in food:
+            x, y = f.position
+            pygame.draw.rect(screen, (255, 0, 0, 255), (x * w, y * h, w, h))
+        for f in food1:
+            x, y = f.position
+            pygame.draw.rect(screen, (0, 255, 0, 255), (x * w, y * h, w, h))
+        for f in food2:
+            x, y = f.position
+            pygame.draw.rect(screen, (255, 255, 255, 255), (x * w, y * h, w, h))
+
+
+        pygame.display.flip()
+
+
+# Run the game
+pygame.init()
+screen = pygame.display.set_mode(
+    (1350, 700))
+
+world = World()
+
+
+w = int(screen.get_width() / len(world.tiles[0]))
+h = int(screen.get_height() / len(world.tiles))
+h = w = min(w, h)
+
+while True:
+    world.input()
+    world.update()
+    world.render()
+    pygame.time.wait(35)
